@@ -1,69 +1,44 @@
 import pandas as pd
 import gmplot 
-from Adicional import adicional
+from Adicional2 import adicional
+import time
+import webbrowser
 
-df=pd.read_csv('C:\Programacion_Visual\Datos.py\calles_de_medellin_con_acoso.csv',sep=';')
-df_Filtrado = df.fillna({"harassmentRisk":df['harassmentRisk'].mean()})
-
-
+apikey='AIzaSyAEoJwf7WtJ_3zlUMAu5RSVpRtr5UE32gQ'
 adicional.bienvenida()
-grafo={}
-grafo=adicional.crear_Grafo(df_Filtrado,grafo)
 
-print("Digite la coordinada inicial, sin los parentesis:")
-nodo_Inicial="("+str(input())+")"
-print("Digite la coordinada final, sin los parentesis:")
-nodo_FInal="("+str(input())+")"
-temp=""
-continuar="si"
+temp=0
+df=pd.read_csv('C:\Programacion_Visual\Datos.py\calles_de_medellin_con_acoso.csv',sep=';')
+inicial='(-75.5778046, 6.2029412)'
+final='(-75.5762232, 6.266327)'     
+gmap3 = gmplot.GoogleMapPlotter(float(inicial[inicial.find(",")+2:len(inicial)-1]),float(inicial[1:inicial.find(",")]),14,apikey=apikey)
+gmap3.text(float(inicial[inicial.find(",")+2:len(inicial)-1]),float(inicial[1:inicial.find(",")]),'Punto Partida')
 
-while continuar=="si":    
-    adicional.información()
-    n=int(input())
-    if n==1:
-        grafo_Temp={}
-        #creo un grafo aparte del cuya en la que la tupla se cambia por el promedio de riesgo y longitud
-        #lo hice así para cuando se deba calcular los 3 caminos distintos 
-        for clave in grafo:
-            grafo_Temp[clave]=grafo[clave]
-            for valor in grafo[clave]:
-                grafo_Temp[clave][valor]=grafo[clave][valor][0]
-        temp=adicional.dijkstra(grafo_Temp,nodo_Inicial,nodo_FInal)
-    elif n==2:
-        grafo_Temp={}
-        #creo un grafo aparte del cuya en la que la tupla se cambia por el promedio de riesgo y longitud
-        #lo hice así para cuando se deba calcular los 3 caminos distintos 
-        for clave in grafo:
-            grafo_Temp[clave]=grafo[clave]
-            for valor in grafo[clave]:
-                grafo_Temp[clave][valor]=grafo[clave][valor][1]
-        temp=adicional.dijkstra(grafo_Temp,nodo_Inicial,nodo_FInal)
-    elif n==3:
-        grafo_Temp={}
-        #creo un grafo aparte del cuya en la que la tupla se cambia por el promedio de riesgo y longitud
-        #lo hice así para cuando se deba calcular los 3 caminos distintos 
-        for clave in grafo:
-            grafo_Temp[clave]=grafo[clave]
-            for valor in grafo[clave]:
-                grafo_Temp[clave][valor]=grafo[clave][valor][2]
-        temp=adicional.dijkstra(grafo_Temp,nodo_Inicial,nodo_FInal)
-    else:
-        print("Por favor digite una opción valida")
-    
+
+for i in range (0,3):
+    grafo=adicional.crear_Grafo(df,i)
+    t1=time.time()
+    temp=adicional.dijkstra(grafo,inicial,final)
+    print(time.time()-t1)
     latitude_list = []
     longitude_list = [] 
-    
-
-    for i in range (0,len(temp)):
-        valores=str(temp[i])
+        
+    for j in range (len(temp)):
+        valores=str(temp[j])
         longitude_list.append(float(valores[1:valores.find(",")]))
         latitude_list.append(float(valores[valores.find(",")+2:len(valores)-1]))
- 
-    #esto genera un mapa una pagina en google maps con los puntos   
-    gmap3 = gmplot.GoogleMapPlotter(latitude_list[0],longitude_list[0], 40) 
-    gmap3.scatter( latitude_list, longitude_list, '# FF0000', size = 40, marker = False )   
-    gmap3.plot(latitude_list, longitude_list, 'cornflowerblue', edge_width = 2.5) 
-    gmap3.draw("C:\Programacion_Visual\Datos.py\mapaConPuntos.html")#en este punto se genera el html en la posición que se indique
-    
-    print("Si desea graficar otra ruta escriba si a continuación: ")
-    continuar=str(input())
+    gmap3.scatter( latitude_list, longitude_list, size=0 , marker=False )
+
+    if i ==0:    
+        gmap3.plot(latitude_list, longitude_list,'#000000',edge_width=15)#Negro
+    if i ==1:  
+        gmap3.plot(latitude_list, longitude_list, '#1900ff',edge_width=7)#azul
+    if i ==2: 
+        gmap3.plot(latitude_list, longitude_list, '#ff0000',edge_width=7)#rojo
+          
+          
+gmap3.text(latitude_list[len(latitude_list)-1],longitude_list[len(longitude_list)-1], 'Punto de llegada')
+print((time.time()-t1)/60)
+
+gmap3.draw("C:\Programacion_Visual\Datos.py\mapaConPuntos.html")#en este punto se genera el html en la posición que se indique
+webbrowser.open_new_tab('C:\Programacion_Visual\Datos.py\mapaConPuntos.html')   
