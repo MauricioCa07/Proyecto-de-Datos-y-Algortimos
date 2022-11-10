@@ -1,27 +1,24 @@
 class adicional:
     
-     
     def bienvenida():
-        print("********************************************************\n\n Bienvenid@ a nuestro programa \n\n ********************************************************\n")
-     
-    def información():
-        print("\n A continuación podras se te presentarán 3 opciones con las corrdenadas que puso actualmente\n")
-        print("Presione 1 para calular la ruta mas segura/corta \nPresione 2 para calcular la ruta mas corta \nPresione 3 para calcular la ruta mas segura")
+        print("********************************************************\n\n Bienvenid@ a nuestro programa \n\n ********************************************************")
       
         
-    def crear_Grafo(df_Filtrado,grafo)-> dict:
+    def crear_Grafo(df,i):
+        grafo={}
+        df_Filtrado = df.fillna({"harassmentRisk":df['harassmentRisk'].mean()})
+        
         for linea in df_Filtrado.index:
-            #Esta es una tupla que contiene el promedio de riego y longitd, así como sus valores por aparte será util pa calcular 3 rutas
-            temp=((df_Filtrado["harassmentRisk"][linea]+df_Filtrado["length"][linea])/2,df_Filtrado["length"][linea],df_Filtrado["harassmentRisk"])
+            temp=(((df_Filtrado["harassmentRisk"][linea]*100)+df_Filtrado["length"][linea])/2,df_Filtrado["length"][linea],df_Filtrado["harassmentRisk"][linea])
             if df_Filtrado["origin"][linea] not in grafo:
-                grafo[df_Filtrado["origin"][linea]]={df_Filtrado["destination"][linea]:temp}
+                grafo[df_Filtrado["origin"][linea]]={df_Filtrado["destination"][linea]:temp[i]}
             else:
-                grafo[df_Filtrado["origin"][linea]][df_Filtrado["destination"][linea]]=temp
+                grafo[df_Filtrado["origin"][linea]][df_Filtrado["destination"][linea]]=temp[i]
             if  df_Filtrado["oneway"][linea] == True: 
                 if df_Filtrado["destination"][linea] not in grafo:
-                    grafo[df_Filtrado["destination"][linea]]={df_Filtrado["origin"][linea]:temp}
+                    grafo[df_Filtrado["destination"][linea]]={df_Filtrado["origin"][linea]:temp[i]}
                 else:
-                    grafo[df_Filtrado["destination"][linea]][df_Filtrado["origin"][linea]]=temp        
+                    grafo[df_Filtrado["destination"][linea]][df_Filtrado["origin"][linea]]=temp[i]    
         return  grafo
     
     
@@ -33,7 +30,7 @@ class adicional:
         ruta=[] 
     
         for node in nodos_Nousados:
-            camino_mas_Corto[node]=infinito
+                camino_mas_Corto[node]=infinito
         camino_mas_Corto[inicial]=0
 
         while nodos_Nousados:
@@ -49,7 +46,8 @@ class adicional:
                 if indice + camino_mas_Corto[distancia_Minima] < camino_mas_Corto[tempNodo]:
                     camino_mas_Corto[tempNodo]=indice+camino_mas_Corto[distancia_Minima]
                     camino_Recorrido[tempNodo]=distancia_Minima
-            nodos_Nousados.pop(distancia_Minima)          
+            nodos_Nousados.pop(distancia_Minima)
+                      
         nodo_actual=final
         while nodo_actual != inicial:
             try:
@@ -60,4 +58,5 @@ class adicional:
                 break   
         ruta.insert(0,inicial)
         if camino_mas_Corto[final] != infinito:
+            print(camino_mas_Corto[final]," metros")
             return  ruta
