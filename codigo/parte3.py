@@ -4,7 +4,7 @@ from Adicional2 import adicional
 import time
 import webbrowser
 
-apikey='AIzaSyAEoJwf7WtJ_3zlUMAu5RSVpRtr5UE32gQ'
+apikey=''
 adicional.bienvenida()
 
 temp=0
